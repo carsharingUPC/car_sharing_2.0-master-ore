@@ -6,8 +6,12 @@ import 'package:carsharing_app/utils/color_palette.dart';
 import 'package:carsharing_app/utils/divide.dart';
 import 'package:carsharing_app/widgets/alert.dart';
 import 'package:carsharing_app/widgets/input_text.dart';
+import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+
 
 import 'package:flutter/material.dart';
+
+import '../../main.dart';
 
 class LoginPage extends StatefulWidget {
   @override
@@ -72,8 +76,8 @@ class _LoginPageState extends State<LoginPage> {
                 ),
               ),
                 onPressed: (){
-                    Navigator.of(context).pushAndRemoveUntil(MaterialPageRoute(builder: (BuildContext context) => RecoveryPage()), (Route<dynamic> route) => true);
-                  },
+                  Navigator.of(context).pushAndRemoveUntil(MaterialPageRoute(builder: (BuildContext context) => RecoveryPage()), (Route<dynamic> route) => true);
+                   },
             ),
             _dividers.defDivider(16.0),
             _LoginButton(context),
@@ -98,6 +102,7 @@ class _LoginPageState extends State<LoginPage> {
         ),
         child: Text('Iniciar sesión', style: TextStyle(color: _colorPalette.dark_blue_app, fontWeight: FontWeight.w700)),
         onPressed: (){
+          _showNotification();
             setState(() {
               if(emailController.text.contains("@") && emailController.text.contains(".com")){
                 _usuarioProvider.signIn(emailController.text, passwordController.text, context);
@@ -110,4 +115,21 @@ class _LoginPageState extends State<LoginPage> {
     );
   }
 
+}
+
+
+void _showNotification() async {
+  const AndroidNotificationDetails androidPlatformChannelSpecifics = AndroidNotificationDetails(
+      'your channel id', 'your channel name', 'your channel description',
+      ticker: 'ticker');
+  const IOSNotificationDetails iOSPlatformChannelSpecifics = IOSNotificationDetails(
+      presentAlert: true,
+      presentBadge: true,
+      presentSound: true);
+
+  const NotificationDetails platformChannelSpecifics =
+  NotificationDetails(androidPlatformChannelSpecifics, iOSPlatformChannelSpecifics);
+  await flutterLocalNotificationsPlugin.show(
+      0, 'Logueo', 'Biemvenido', platformChannelSpecifics,
+      payload: 'item x');
 }

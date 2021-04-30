@@ -2,6 +2,7 @@ import 'package:carsharing_app/models/user.dart';
 import 'package:carsharing_app/pages/main_menus/adm_home_page.dart';
 import 'package:carsharing_app/pages/main_menus/user_home_page.dart';
 import 'package:carsharing_app/pages/sign_in_pages/stay_page.dart';
+import 'package:carsharing_app/pages/recovery_pages/resset_page.dart';
 import 'package:carsharing_app/widgets/alert.dart';
 
 import 'package:http/http.dart' as http;
@@ -51,6 +52,33 @@ class UsuarioProvider {
       _alert.createAlert(context, 'Credenciales invalidas', 'El usuario o contraseña ingresados son incorrectos');
     }
   }
+
+  //METODO POST PARA INGRESAR AL APP CON EMAIL
+  signbyEmail(String correo, BuildContext context) async {
+    SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
+    Map data = {
+      'correo'    : correo,
+    };
+    var bodyRequest = json.encode(data);
+    var jsonData;
+    var response = await http.post("${_url}logemail", headers: {"Content-Type": "application/json" }, body: bodyRequest);
+    if(response.statusCode == 200){
+      jsonData = json.decode(response.body);
+      if(jsonData != null){
+        sharedPreferences.setInt("id", jsonData['id']);
+        sharedPreferences.setString("nombres", jsonData['nombres']);
+        sharedPreferences.setString("correo", jsonData['correo']);
+        sharedPreferences.setString("token", jsonData['password']);
+
+          Navigator.of(context).pushAndRemoveUntil(MaterialPageRoute( builder: (BuildContext context) => RessetPage()), (Route<dynamic> route) => false);
+      }
+    }
+    else{
+      _alert.createAlert(context, 'Credenciales invalidas', 'El correo ingresado es incorrecto');
+    }
+  }
+
+
   //METODO PARA REGISTRAR UN USUARIO
   register(String nombres, String aPaterno, String aMaterno, String dni,
       String celular, String fechaNac, String correo, String password, String image, BuildContext context) async {
@@ -137,8 +165,6 @@ class UsuarioProvider {
     }
   }
 
-
-
   Future<Usuario> getUser(int id) async {
     var data =  await http.get("$_url$id");
     var jsonData = json.decode(data.body);
@@ -148,17 +174,6 @@ class UsuarioProvider {
 
     return usuario;
   }
-
-  Future<Usuario> getUserbyCell(String celular) async {
-    var data =  await http.get("${_url}celular$celular");
-    var jsonData = json.decode(data.body);
-
-    Usuario usuario = Usuario(jsonData["id"],jsonData["apellidoMaterno"], jsonData["apellidoPaterno"], jsonData["celular"],
-        jsonData["correo"], jsonData["dni"], jsonData["enable"], jsonData["esAdm"], jsonData["fechaNac"], jsonData["nombres"], jsonData["password"]);
-
-    return usuario;
-  }
-
 
   update(int id, String nombres, String aPaterno, String aMaterno, String dni,
       String celular, String fechaNac, String correo, String password, String imagen) async {
