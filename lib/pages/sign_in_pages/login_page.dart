@@ -130,6 +130,6 @@ void _showNotification() async {
   const NotificationDetails platformChannelSpecifics =
   NotificationDetails(androidPlatformChannelSpecifics, iOSPlatformChannelSpecifics);
   await flutterLocalNotificationsPlugin.show(
-      0, 'Logueo', 'Biemvenido', platformChannelSpecifics,
+      0, 'Logueo', 'Bienvenido', platformChannelSpecifics,
       payload: 'item x');
 }
